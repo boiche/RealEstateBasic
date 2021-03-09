@@ -1,0 +1,90 @@
+﻿@page "/admin"
+@layout AdminLayout
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+@inject HttpClient Http
+
+@if (houseData != null)
+{
+    <div class="justify-content-center align-items-center d-flex min-vh-100">
+        <div class="main-container">
+            <img class="admin-login-img" src="https://www.blr.bg/img/logo.png" />
+            <div class="form-container">
+                @if (!isEditing)
+                {
+                    <TableTemplate Items="houseData">
+                        <TableHeader>                                             
+                            <th scope="col" class="fancy">House Name</th>
+                            <th scope="col" class="fancy">Price</th>
+                            <th scope="col" class="fancy">Is Sold</th>
+                            <th scope="col" class="fancy">Actions</th>
+                        </TableHeader>
+                        <RowTemplate>
+                            <td class="fancy cell">@context.Name</td>
+                            <td class="fancy cell">@context.Price</td>
+                            <td class="fancy cell">@context.IsSold</td>
+                            <td class="row">
+                                <button class="btn btn-danger col" @onclick="DeleteHouse">Delete</button>
+                                <button class="btn btn-info col" @onclick="() => EditHouse(context)">Edit</button>
+                            </td>
+                        </RowTemplate>
+                    </TableTemplate>
+                }
+                else
+                {
+                    <p>You are editing now @houseToEdit.Name</p>
+                    <button class="btn btn-info" @onclick="SaveChanges">Save</button>
+                    <button class="btn btn-light" @onclick="ShowTable">Back</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private HouseDataModel[] houseData;
+    private HouseDataModel houseToEdit;
+    private bool isEditing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //TODO: find better way to invoke function instead of eval()
+        var result = await JSRuntime.InvokeAsync<string>("eval", "document.cookie");
+        string[] cookies = result.Split(';', StringSplitOptions.RemoveEmptyEntries);
+        bool isLoggedIn = false;
+        foreach (string cookie in cookies)
+        {
+            if (cookie.Contains("loggedIn"))
+            {
+                isLoggedIn = true;
+                break;
+            }
+        }
+        if (!isLoggedIn) navigationManager.NavigateTo("/admin/login");
+
+        houseData = await Http.GetFromJsonAsync<HouseDataModel[]>("sample-data/houses.json");
+    }
+
+    private void DeleteHouse()
+    {
+        //TODO: Delete house with given name
+    }
+
+    private void EditHouse(HouseDataModel house)
+    {
+        isEditing = true;
+        houseToEdit = house;
+        //TODO: navigate to page for edit
+    }
+
+    private void SaveChanges()
+    {
+        //TODO: save changes for edited house
+        ShowTable();
+    }
+
+    private void ShowTable()
+    {
+        isEditing = false;
+    }
+}

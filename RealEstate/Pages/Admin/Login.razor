@@ -1,0 +1,88 @@
+﻿@inject HttpClient Http
+@inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
+@page "/admin/login"
+@layout AdminLayout
+@using System.Security.Cryptography
+@using System.Text
+
+@if (adminData == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="justify-content-center align-items-center d-flex min-vh-100">
+        <div class="main-container">
+            <img class="admin-login-img" src="https://www.blr.bg/img/logo.png" />
+            <div class="form-container">
+                <h1 class="fancy extra-large">Login admin</h1>
+                <br />
+                <EditForm Model="this" OnSubmit="@HandleLogin">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="form-group">
+                        <InputText @bind-Value="toLoginModel.Username" class="w-100 form-input"></InputText>
+                    </div>
+                    <div class="form-group">
+                        <input @bind="@toLoginModel.Password" class="w-100 form-input" type="password" />
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success w-100 form-input" type="submit">Login</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    public LoginModel toLoginModel { get; set; } = new LoginModel();
+    private LoginModel[] adminData;
+
+    protected override async Task OnInitializedAsync()
+    {
+        adminData = await Http.GetFromJsonAsync<LoginModel[]>("sample-data/adminCredentials.json");
+    }
+
+    private async Task HandleLogin()
+    {
+        toLoginModel.Password = ComputeHash();
+        Console.WriteLine("password: " + toLoginModel.Password.Trim().Equals(adminData[0].Password.Replace("\0", "").Trim()));
+        Console.WriteLine("username: " + toLoginModel.Username.Equals(adminData[0].Username));
+
+        if (toLoginModel.Password == adminData[0].Password && toLoginModel.Username == adminData[0].Username)
+        {
+            LoginHandler.RecordLogin();
+
+            DateTime now = DateTime.Now;
+            await JSRuntime.InvokeVoidAsync("eval", $"document.cookie = \"loggedIn=true; expires={now.AddHours(1)}\"");
+            await JSRuntime.InvokeVoidAsync("eval", $"document.cookie = \"test=tested; expires={now.AddHours(1)}\"");
+
+            navigationManager.NavigateTo("/admin");
+        }
+        else
+        {
+            throw new Exception("Invalid data!");
+            //TODO: throw exception and show message for invalid credentials
+        }
+    }
+
+    private string ComputeHash()
+    {
+        byte[] bytes = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(toLoginModel.Password));
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            result.Append(bytes[i].ToString("x2"));
+        }
+
+        return result.ToString();
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+}

@@ -1,0 +1,40 @@
+﻿@page "/"
+
+<Animate Animation="Animations.Fade" Duration="TimeSpan.FromSeconds(0.5)">
+    <div class="first-section section-image section">
+        <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(3)">
+            <h1 class="section-header">Real estate site</h1>
+        </Animate>
+        <Animate Animation="Animations.FadeUp" Duration="TimeSpan.FromSeconds(2.5)">
+            <p class="section-text extra-large">3 новопостроени къщи за продан</p>
+        </Animate>
+    </div>
+</Animate>
+<div class="second-section section-image section">
+    <Animate Animation="Animations.FadeLeft" Anchor="#trigger-left" AnchorPlacement="@Anchor.TopTop" DurationMs="1200" Easing="Easings.EaseInOutBack" Once="true" Mirror="true">
+        <h1 class="section-header">Брутални къщи</h1>
+    </Animate>
+    <p class="section-text extra-large">Бая добри честно</p>
+</div>
+<Animate Animation="Animations.SlideLeft" Anchor="#trigger-left" AnchorPlacement="@Anchor.TopTop" DelayMs="500" DurationMs="2000" Easing="Easings.EaseInSine" Once="true">
+    <div class="third-section section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-5">
+                    <img class="third-section-img" src="https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/modern-house-1-1538579609.jpg?crop=0.713xw:1.00xh;0.0207xw,0&resize=480:*" />
+                </div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-6">
+                    <h1 class="section-header">Архитектура</h1>
+                    <p class="section-text details-text large">
+                        Модерен лукс, съчетаващ изчистените линии с природата наоколо. Натурални цветове, допълващи красивата растителност, естествени материали. С внимание към всеки малък детайл и функционални разпределения.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</Animate>
+
+@code {
+
+}
