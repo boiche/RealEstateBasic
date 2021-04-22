@@ -14,9 +14,9 @@ namespace RealEstate
         public int Floors { get; set; }
         public bool IsSold { get; set; }
         public decimal Price { get; set; }
-        public List<Distribution> Distributions { get; set; }
         public decimal BuildUpArea { get; set; }
         public decimal Yard { get; set; }
+        public List<Distribution> Distributions { get; set; }
         public class Distribution
         {
             public string Name { get; set; }

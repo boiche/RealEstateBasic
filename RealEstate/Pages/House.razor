@@ -1,0 +1,172 @@
+﻿@page "/house/{houseId}"
+@inject HttpClient Http
+@inject NavigationManager manager 
+<div class="house-presentation">
+    <div class="house-presentation-nav">
+        <div class="row">
+            <div class="col-5">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="@PreviousHouse" class="fancy large house-link left"><span>&#10502;</span> Предишна</a>
+                    </div>
+                    <div class="col-6">
+                        <a href="@NextHouse" class="fancy large house-link right">Следваща <span>&#10503;</span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-7">
+                <a href="/choose" class="fancy large house-link right">Избери друга къща <span>&#10503;</span></a>
+            </div>
+        </div>
+    </div>
+    <div class="house-presentation-details">
+        <div class="row">
+            <div class="col-lg-5">
+                <img src="https://i.pinimg.com/originals/e0/1f/68/e01f6898ad82805f00bb762a437cc658.jpg" />
+            </div>
+            <div class="col-lg-7">
+                <div class="row house-info">
+                    <div class="col-lg-12 left fancy">
+                        <div>Къща</div>
+                        <h1>@HouseId</h1>
+                        <div>@DataModel.IsSold</div>
+                    </div>
+                </div>
+                <div class="row house-info">
+                    <div class="col-lg-4 left fancy">
+                        <h2>Жилищна площ</h2>
+                        <div>@DataModel.BuildUpArea м<sup>2</sup></div>
+                    </div>
+                    <div class="col-lg-4 fancy partial-border">
+                        <h2>Етажи</h2>
+                        <div>@DataModel.Floors</div>
+                    </div>
+                    <div class="col-lg-4 right fancy">
+                        <h2>Двор</h2>
+                        <div>@DataModel.Yard м<sup>2</sup></div>
+                    </div>
+                </div>
+                <div class="row house-info">
+                    <div class="col-lg-4 left fancy">
+                        <h2>Местоположение</h2>
+                    </div>
+                    <div class="col-lg-4 fancy center partial-border">
+                        <h2>Подробна информация</h2>
+                        <a href="#" target="_blank">
+                            <img src="https://www.blr.bg/img/pdf.png" />
+                        </a>
+                    </div>
+                    <div class="col-lg-4 right fancy">
+                        <h2>Разделения</h2>
+                        @foreach (var distribution in DataModel.Distributions)
+                        {
+                            <a href="" class="distribution-link">@distribution.Name <span>&#10503;</span></a><br />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @for (int k = 0; k < DataModel.Distributions.Count; k++)
+    {
+        var distribution = DataModel.Distributions[k];
+        if (k % 2 == 0)
+        {
+            <div class="house-presentation-distributions odd">
+                <h1 class="distribution-name">@distribution.Name</h1>
+                <div class="row">
+                    <div class="col-lg-7">
+                        <img class="distribution-img" src="https://www.blr.bg/uf/houses/A6_0_new.png" />
+                    </div>
+                    <div class="col-lg-4 info-table">
+                        <p>@distribution.Description</p>
+                        <table class="table-responsive">
+                            <tbody>
+                                @for (int i = 1; i <= distribution.Sections.Count; i++)
+                                {
+                                    <tr>
+                                        <td>
+                                            <p class="sign">@i</p>
+                                        </td>
+                                        <td>@distribution.Sections[i - 1].Name</td>
+                                        <td class="right">@distribution.Sections[i - 1].Area м<sup>2</sup></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+        <div class="house-presentation-distributions even">
+            <h1 class="distribution-name">@distribution.Name</h1>
+            <div class="row">
+                <div class="col-lg-7">
+                    <img class="distribution-img" src="https://www.blr.bg/uf/houses/A6_0_new.png" />
+                </div>
+                <div class="col-lg-4 info-table">
+                    <p>@distribution.Description</p>
+                    <table class="table-responsive">
+                        <tbody>
+                            @for (int i = 1; i <= distribution.Sections.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <p class="sign">@i</p>
+                                    </td>
+                                    <td>@distribution.Sections[i - 1].Name</td>
+                                    <td class="right">@distribution.Sections[i - 1].Area м<sup>2</sup></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        }        
+    }
+</div>
+
+@code {
+        [Parameter]
+        public string HouseId { get; set; }
+        [Parameter]
+        public HouseDataModel DataModel { get; set; }
+
+    private string API_URI = "https://localhost:44352/api/houses";
+    public string PreviousHouse { get; set; }
+    public string NextHouse { get; set; }
+
+    protected override void OnInitialized()
+    {
+        manager.LocationChanged += HouseChanged;
+        DataModel = new HouseDataModel();        
+        DataModel.Distributions = new List<HouseDataModel.Distribution>() { new HouseDataModel.Distribution() { Name = "", Sections = new List<HouseDataModel.Distribution.Section>() { new HouseDataModel.Distribution.Section { Name = "" } } } };
+        HouseChanged(null, null);
+    }
+
+    async void HouseChanged(object sender, LocationChangedEventArgs args)
+    {
+        if (manager.Uri.Contains("house") == false) return;
+
+        HouseDataModel[] result = await Http.GetFromJsonAsync<HouseDataModel[]>(API_URI);
+        foreach (var item in result)
+        {
+            Console.WriteLine(item.Name);
+        }
+        DataModel = result.FirstOrDefault(x => x.Name == HouseId);
+        if (DataModel == null) DataModel = new HouseDataModel();
+
+        PreviousHouse = 'A' + (int.Parse(HouseId.Substring(1, HouseId.Length - 1)) - 1).ToString();
+        NextHouse = 'A' + (int.Parse(HouseId.Substring(1, HouseId.Length - 1)) + 1).ToString();
+
+        if (PreviousHouse == "A0") PreviousHouse = string.Empty;
+        else PreviousHouse = "/house/" + PreviousHouse;
+        if (NextHouse == "A14") NextHouse = string.Empty;
+        else NextHouse = "/house/" + NextHouse;
+
+        StateHasChanged();
+    }
+}

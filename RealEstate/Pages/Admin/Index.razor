@@ -10,31 +10,146 @@
         <div class="main-container">
             <img class="admin-login-img" src="https://www.blr.bg/img/logo.png" />
             <div class="form-container">
-                @if (!isEditing)
-                {
-                    <TableTemplate Items="houseData">
-                        <TableHeader>                                             
-                            <th scope="col" class="fancy">House Name</th>
-                            <th scope="col" class="fancy">Price</th>
-                            <th scope="col" class="fancy">Is Sold</th>
-                            <th scope="col" class="fancy">Actions</th>
-                        </TableHeader>
-                        <RowTemplate>
-                            <td class="fancy cell">@context.Name</td>
-                            <td class="fancy cell">@context.Price</td>
-                            <td class="fancy cell">@context.IsSold</td>
-                            <td class="row">
-                                <button class="btn btn-danger col" @onclick="DeleteHouse">Delete</button>
-                                <button class="btn btn-info col" @onclick="() => EditHouse(context)">Edit</button>
-                            </td>
-                        </RowTemplate>
-                    </TableTemplate>
-                }
-                else
-                {
-                    <p>You are editing now @houseToEdit.Name</p>
-                    <button class="btn btn-info" @onclick="SaveChanges">Save</button>
-                    <button class="btn btn-light" @onclick="ShowTable">Back</button>
+            @if (!isEditing)
+            {
+                <TableTemplate Items="houseData">
+                    <TableHeader>                                             
+                        <th scope="col" class="fancy">House Name</th>
+                        <th scope="col" class="fancy">Price</th>
+                        <th scope="col" class="fancy">Is Sold</th>
+                        <th scope="col" class="fancy">Actions</th>
+                    </TableHeader>
+                    <RowTemplate>
+                        <td class="fancy cell">@context.Name</td>
+                        <td class="fancy cell">@context.Price</td>
+                        <td class="fancy cell">@context.IsSold</td>
+                        <td class="row">
+                            <button class="btn btn-danger col" @onclick="() => DeleteHouse(context)">Delete</button>
+                            <button class="btn btn-info col" @onclick="() => EditHouse(context)">Edit</button>
+                        </td>
+                    </RowTemplate>
+                </TableTemplate>
+            }
+            else
+            {
+            <EditForm Model="houseToEdit" OnValidSubmit="SaveChanges">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <h1>@houseToEdit.Name</h1>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h2>General information</h2>
+                        <div class="form-group">
+                            <label>Name</label>
+                            <InputText @bind-Value="houseToEdit.Name" class="form-control"></InputText>
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <InputNumber @bind-Value="houseToEdit.Price" class="form-control"></InputNumber>
+                        </div>
+                        <div class="form-group">
+                            <label>Yard</label>
+                            <InputNumber @bind-Value="houseToEdit.Yard" class="form-control"></InputNumber>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <InputTextArea @bind-Value="houseToEdit.Description" class="form-control"></InputTextArea>
+                        </div>
+                        <div class="form-group">
+                            <label>Floors</label>
+                            <InputNumber @bind-Value="houseToEdit.Floors" class="form-control"></InputNumber>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 px-2">
+                        <h2>Distributions</h2>
+                        <InputSelect @bind-Value="selectedDistributionName">
+                            @foreach (var distribution in houseToEdit.Distributions)
+                                    {
+                                <option>@distribution.Name</option>
+                                    }
+                        </InputSelect>
+                        @if (selectedDistributionName != default)
+                        {
+                            selectedDistribution = houseToEdit.Distributions.First(x => x.Name == selectedDistributionName);
+                            <div class="form-group">
+                                <label>Name</label>
+                                <InputText @bind-Value="selectedDistribution.Name" class="form-control"></InputText>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <InputTextArea @bind-Value="selectedDistribution.Description" class="form-control"></InputTextArea>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger" @onclick="DeleteDistribution">Delete</button>
+                            </div>
+                        }
+                        <div class="form-group">
+                            <h3>Add new distribution</h3>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <InputText @bind-Value="newDistribution.Name" class="form-control"></InputText>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <InputTextArea @bind-Value="newDistribution.Description" class="form-control"></InputTextArea>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-success" @onclick="AddDistribution">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h2>Sections</h2>
+                        @if (selectedDistribution != null)
+                        {
+                            <InputSelect @bind-Value="selectedSectionName">
+                                @foreach (var section in selectedDistribution.Sections)
+                                            {
+                                    <option>@section.Name</option>
+                                            }
+                            </InputSelect>
+                        }
+                        @if (selectedSectionName != default)
+                        {
+                            Console.WriteLine(selectedSectionName);
+                            selectedSection = selectedDistribution.Sections.First(x => x.Name == selectedSectionName);
+                            <div class="form-group">
+                                <label>Name</label>
+                                <InputText @bind-Value="selectedSection.Name" class="form-control"></InputText>
+                            </div>
+                            <div class="form-group">
+                                <label>Area</label>
+                                <InputNumber @bind-Value="selectedSection.Area" class="form-control"></InputNumber>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-danger" @onclick="DeleteSection">Delete</button>
+                            </div>
+                        }
+                        @if (selectedDistributionName != default)
+                        {
+                            <div class="form-group">
+                                <h3>Add new section</h3>
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <InputText @bind-Value="newSection.Name" class="form-control"></InputText>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Area</label>
+                                        <InputNumber @bind-Value="newSection.Area" class="form-control"></InputNumber>
+                                    </div>
+                                    <div class="form-group">
+                                        <button class="btn btn-success" @onclick="AddSection">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <button class="btn btn-info" type="submit">Save</button>
+                <button class="btn btn-light" @onclick="ShowTable">Cancel</button>
+            </EditForm>
                 }
             </div>
         </div>
@@ -42,9 +157,21 @@
 }
 
 @code {
+    public bool IsVisible { get; set; }
+    public bool IsSectionVisible { get; set; }
+    private string API_URI = "https://localhost:44352/api/houses";
     private HouseDataModel[] houseData;
     private HouseDataModel houseToEdit;
-    private bool isEditing;
+
+    private string selectedDistributionName = default;
+    private HouseDataModel.Distribution selectedDistribution;
+    private string selectedSectionName = default;
+    private HouseDataModel.Distribution.Section selectedSection;
+
+    private HouseDataModel.Distribution.Section newSection = new HouseDataModel.Distribution.Section();
+    private HouseDataModel.Distribution newDistribution = new HouseDataModel.Distribution();
+
+    private bool isEditing = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,29 +189,80 @@
         }
         if (!isLoggedIn) navigationManager.NavigateTo("/admin/login");
 
-        houseData = await Http.GetFromJsonAsync<HouseDataModel[]>("sample-data/houses.json");
+        houseData = await Http.GetFromJsonAsync<HouseDataModel[]>(API_URI);
     }
 
-    private void DeleteHouse()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //TODO: Delete house with given name
+        await base.OnAfterRenderAsync(firstRender);
+        houseData = await Http.GetFromJsonAsync<HouseDataModel[]>(API_URI);
+    }
+
+    private async Task DeleteHouse(HouseDataModel toDelete)
+    {
+        await Http.GetFromJsonAsync<HouseDataModel[]>(API_URI + "/delete");
     }
 
     private void EditHouse(HouseDataModel house)
     {
         isEditing = true;
         houseToEdit = house;
-        //TODO: navigate to page for edit
+
     }
 
-    private void SaveChanges()
+    private async Task SaveChanges()
     {
-        //TODO: save changes for edited house
+        await Http.PutAsJsonAsync(API_URI + $"/{houseToEdit.Id}", houseToEdit);
+        houseData = await Http.GetFromJsonAsync<HouseDataModel[]>(API_URI);
+        Reset();
         ShowTable();
+        StateHasChanged();
     }
 
     private void ShowTable()
     {
         isEditing = false;
+    }
+
+    private async Task AddSection()
+    {
+        if (selectedDistribution == null) throw new ArgumentNullException("selectedDistribution", "Selected distribution was null.");
+        houseToEdit.Distributions.First(x => x.Description == selectedDistribution.Description).Sections.Add(newSection);
+        await SaveChanges();
+    }
+
+    private async Task AddDistribution()
+    {
+        newDistribution.Sections = new List<HouseDataModel.Distribution.Section>();
+        houseToEdit.Distributions.Add(newDistribution);
+        await SaveChanges();
+    }
+
+    private async Task DeleteSection()
+    {
+        
+        if (selectedSection == null) throw new NullReferenceException("Selected section was null");
+        if (selectedDistribution == null) throw new NullReferenceException($"Selected distribution for {selectedSection.Name} was null");
+        selectedDistribution.Sections.Remove(selectedSection);
+        selectedSection = null;
+        selectedSectionName = default;
+        await SaveChanges();
+    }
+
+    private async Task DeleteDistribution()
+    {
+        if (selectedDistribution == null) throw new NullReferenceException("Selected distribution was null");
+        houseToEdit.Distributions.Remove(selectedDistribution);
+        selectedDistribution = null;
+        selectedDistributionName = default;
+        await SaveChanges();
+    }
+
+    private void Reset()
+    {
+        selectedDistribution = null;
+        selectedDistributionName = default;
+        selectedSection = null;
+        selectedSectionName = default;
     }
 }

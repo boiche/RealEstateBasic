@@ -1,1 +1,37 @@
 ﻿@page "/choose"
+@inject NavigationManager manager
+@inject IJSRuntime JS
+<img src="https://cdn6.dissolve.com/p/D9_39_038/D9_39_038_1200.jpg" class="map section-image" usemap="#chooseHouse" />
+<map name="chooseHouse">
+    <area id="A1" href="/house/A1" shape="poly" coords="23,209,121,210,121,218,150,228,150,310,23,310,23,209" alt="A1" />
+    <area id="A2" href="/house/A2" shape="poly" coords="223,190,285,190,285,195,312,198,336,212,334,292,246,292,223,287" alt="A2" />
+    <area id="A3" href="/house/A3" shape="poly" coords="490,178,501,178,501,168,626,168,626,274,529,274,529,261,490,261,490,178" alt="A3" />
+    <area id="A4" href="/house/A4" shape="poly" coords="812,166,918,166,918,271,812,271" alt="A4" />
+    <area id="A5" href="/house/A5" shape="poly" coords="1093,168,1093,159,1159,151,1205,160,1205,266,1195,266,1180,273,1085,273,1085,254,1079,254,1071,246,1071,214,1083,203,1083,178,1093,168" alt="A5" />
+    <area id="A6" href="/house/A6" shape="poly" coords="30,426,120,428,120,434,149,434,149,520,120,520,120,532,30,532,30,426" alt="A6" />
+    <area id="A7" href="/house/A7" shape="poly" coords="214,433,312,433,312,440,332,440,332,521,312,521,312,530,214,530,214,433" alt="A7" />
+    <area id="A8" href="/house/A8" shape="poly" coords="523,444,523,322,564,319,618,322,618,444,565,445,523,444" alt="A8" />
+    <area id="A9" href="/house/A9" shape="poly" coords="509,529,617,529,617,627,509,627,509,529" alt="A9" />
+    <area id="A10" href="/house/A10" shape="poly" coords="816,355,922,355,922,450,816,450,816,355" alt="A10" />
+    <area id="A11" href="/house/A11" shape="poly" coords="816,513,922,513,922,628,816,628,816,513" alt="A11" />
+    <area id="A12" href="/house/A12" shape="poly" coords="1093,357,1098,356,1098,329,1104,326,1104,316,1162,312,1205,316,1205,351,1210,372,1205,396,1205,429,1098,429,1098,429,1098,395,1093,395,1093,357" alt="A12" />
+    <area id="A13" href="/house/A13" shape="poly" coords="1100,538,1208,538,1208,636,1100,636,1100,538" alt="A13" />
+</map>
+
+@code {     
+    protected override void OnInitialized()
+    {
+        manager.LocationChanged += LocationChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("hilight", null);
+    }
+
+    async void LocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        if (!manager.Uri.Contains("choose"))
+            await JS.InvokeVoidAsync("removeMap");
+    }
+}
